@@ -36,6 +36,105 @@ void AccumulateIndirectLighting(IndirectLighting src, inout AggregateLighting ds
     dst.indirect.specularTransmitted += src.specularTransmitted;
 }
 
+#define ENABLE_PACKED_ACCUMULATION_DATA 1
+
+struct PackedHalf3
+{
+#if ENABLE_PACKED_ACCUMULATION_DATA
+    uint3 m_data;
+
+    float3 first() { return float3(f16tof32(m_data.x), f16tof32(m_data.y), f16tof32(m_data.z)); } 
+    float3 second() { return float3(f16tof32(m_data.x >> 16), f16tof32(m_data.y >> 16), f16tof32(m_data.z >> 16)); } 
+
+    void Pack(float3 first, float3 second)
+    {
+        m_data = uint3(
+            f32tof16(first.x) | (f32tof16(second.x) << 16),
+            f32tof16(first.y) | (f32tof16(second.y) << 16),
+            f32tof16(first.z) | (f32tof16(second.z) << 16)
+        );
+    }
+#else
+    float3 m_first;
+    float3 m_second;
+    float3 first() { return m_first; } 
+    float3 second() { return m_second; } 
+    void Pack(float3 first, float3 second)
+    {
+        m_first = first;
+        m_second = second;
+    }
+#endif
+};
+
+struct PackedDirectLighting
+{
+    PackedHalf3 m_data;
+    float3 diffuse () { return m_data.first(); }
+    float3 specular() { return m_data.second(); }
+    void Pack(float3 diffuse, float3 specular)
+    {
+        m_data.Pack(diffuse, specular);
+    }
+};
+
+struct PackedIndirectLighting
+{
+    PackedHalf3 m_data;
+
+    float3 specularReflected() { return m_data.first(); }
+    float3 specularTransmitted() { return m_data.second(); }
+
+    void Pack(float3 specularReflected, float3 specularTransmitted)
+    {
+        m_data.Pack(specularReflected, specularTransmitted);
+    }
+};
+
+struct PackedAggregateLighting
+{
+    float2 m_multipliers;
+    PackedDirectLighting direct;
+    PackedIndirectLighting indirect;
+
+    void init(float exposureMultiplier, float exposureMultiplierInv)
+    {
+    #if ENABLE_PACKED_ACCUMULATION_DATA
+        m_multipliers = float2(exposureMultiplier, exposureMultiplierInv);
+    #else
+        m_multipliers = float2(1.0, 1.0);
+    #endif
+    }
+   
+    void AccumulatePackedDirect(in PackedDirectLighting src)
+    {
+        direct.Pack(direct.diffuse() + src.diffuse(), direct.specular() + src.specular());
+    }
+
+    void AccumulateDirect(in DirectLighting src)
+    {
+        direct.Pack(direct.diffuse() + src.diffuse * m_multipliers.x, direct.specular() + src.specular * m_multipliers.x);
+    }
+
+    void AccumulatePackedIndirect(in PackedIndirectLighting src)
+    {
+        indirect.Pack(indirect.specularReflected() + src.specularReflected(), indirect.specularTransmitted() + src.specularTransmitted());
+    }
+
+    void AccumulateIndirect(in IndirectLighting src)
+    {
+        indirect.Pack(indirect.specularReflected() + src.specularReflected * m_multipliers.x, indirect.specularTransmitted() + src.specularTransmitted * m_multipliers.x);
+    }
+
+    void Unpack(out AggregateLighting output)
+    {
+        output.direct.diffuse = direct.diffuse() * m_multipliers.y;
+        output.direct.specular = direct.specular() * m_multipliers.y;
+        output.indirect.specularReflected = indirect.specularReflected() * m_multipliers.y;
+        output.indirect.specularTransmitted = indirect.specularTransmitted() * m_multipliers.y;
+    }
+};
+
 //-----------------------------------------------------------------------------
 // Ambient occlusion helper
 //-----------------------------------------------------------------------------
