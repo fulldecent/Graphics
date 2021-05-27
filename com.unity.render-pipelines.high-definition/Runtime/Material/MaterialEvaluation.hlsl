@@ -43,8 +43,8 @@ struct PackedHalf3
 #if ENABLE_PACKED_ACCUMULATION_DATA
     uint3 m_data;
 
-    float3 first() { return float3(f16tof32(m_data.x), f16tof32(m_data.y), f16tof32(m_data.z)); } 
-    float3 second() { return float3(f16tof32(m_data.x >> 16), f16tof32(m_data.y >> 16), f16tof32(m_data.z >> 16)); } 
+    float3 first() { return float3(f16tof32(m_data.x), f16tof32(m_data.y), f16tof32(m_data.z)); }
+    float3 second() { return float3(f16tof32(m_data.x >> 16), f16tof32(m_data.y >> 16), f16tof32(m_data.z >> 16)); }
 
     void Pack(float3 first, float3 second)
     {
@@ -57,8 +57,8 @@ struct PackedHalf3
 #else
     float3 m_first;
     float3 m_second;
-    float3 first() { return m_first; } 
-    float3 second() { return m_second; } 
+    float3 first() { return m_first; }
+    float3 second() { return m_second; }
     void Pack(float3 first, float3 second)
     {
         m_first = first;
@@ -105,7 +105,7 @@ struct PackedAggregateLighting
         m_multipliers = float2(1.0, 1.0);
     #endif
     }
-   
+
     void AccumulatePackedDirect(in PackedDirectLighting src)
     {
         direct.Pack(direct.diffuse() + src.diffuse(), direct.specular() + src.specular());
