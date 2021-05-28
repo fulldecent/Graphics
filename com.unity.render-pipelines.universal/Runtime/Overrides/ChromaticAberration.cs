@@ -2,7 +2,7 @@ using System;
 
 namespace UnityEngine.Rendering.Universal
 {
-    [Serializable, VolumeComponentMenu("Post-processing/Chromatic Aberration")]
+    [Serializable, VolumeComponentMenu("Post-processing/Chromatic Aberration"), SupportedOn(typeof(UniversalRenderPipeline))]
     public sealed class ChromaticAberration : VolumeComponent, IPostProcessComponent
     {
         [Tooltip("Amount of tangential distortion.")]
