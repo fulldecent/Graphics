@@ -20,6 +20,14 @@ namespace UnityEngine.Rendering
         /// create sub-menus.</param>
         public SupportedOnAttribute(params Type[] pipelineTypes)
         {
+            // Make sure that we only allow the class types that inherit from the render pipeline
+            foreach (var t in pipelineTypes)
+            {
+                if (!typeof(RenderPipeline).IsAssignableFrom(t))
+                    throw new Exception(
+                        $"You can only specify types that inherit from {typeof(RenderPipeline)}, please check {t}");
+            }
+            
             this.pipelineTypes = pipelineTypes;
         }
     }
