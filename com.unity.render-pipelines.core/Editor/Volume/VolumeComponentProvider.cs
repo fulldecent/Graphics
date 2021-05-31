@@ -48,28 +48,11 @@ namespace UnityEditor.Rendering
             m_TargetEditor = targetEditor;
         }
 
-        public void CreateComponentTree(List<Element> tree)
+        private static Dictionary<string, Type> FilterVolumeComponentTypes(Type[] types, Type currentPipelineType)
         {
-            var currentPipeline = RenderPipelineManager.currentPipeline;
-            if (currentPipeline == null)
-            {
-                tree.Add(new GroupElement(0, "No SRP in use"));
-                return;
-            }
-
-            var pipelineType = currentPipeline.GetType();
-
-            tree.Add(new GroupElement(0, "Volume Overrides"));
-
-            var types = VolumeManager.instance.baseComponentTypeArray;
-            var rootNode = new PathNode();
-
+            var volumes = new Dictionary<string, Type>();
             foreach (var t in types)
             {
-                // Skip components that have already been added to the volume
-                if (m_Target.Has(t))
-                    continue;
-
                 string path = string.Empty;
 
                 var attrs = t.GetCustomAttributes(false);
@@ -91,7 +74,7 @@ namespace UnityEditor.Rendering
                             skipComponent = true;
                             break;
                         case SupportedOnAttribute supportedOn:
-                            skipComponent = !supportedOn.pipelineTypes.Contains(pipelineType);
+                            skipComponent = !supportedOn.pipelineTypes.Contains(currentPipelineType);
                             break;
                     }
                 }
@@ -104,8 +87,39 @@ namespace UnityEditor.Rendering
                 if (string.IsNullOrEmpty(path))
                     path = ObjectNames.NicifyVariableName(t.Name);
 
+                volumes[path] = t;
+            }
+
+            return volumes;
+        }
+
+        public void CreateComponentTree(List<Element> tree)
+        {
+            var currentPipeline = RenderPipelineManager.currentPipeline;
+            if (currentPipeline == null)
+            {
+                tree.Add(new GroupElement(0, "No SRP in use"));
+                return;
+            }
+            
+            tree.Add(new GroupElement(0, "Volume Overrides"));
+
+            var volumeComponentTypesFiltered = FilterVolumeComponentTypes(
+                VolumeManager.instance.baseComponentTypeArray,
+                currentPipeline.GetType());
+
+            var rootNode = new PathNode();
+
+            foreach (var keyValuePair in volumeComponentTypesFiltered)
+            {
+                var t = keyValuePair.Value;
+
+                // Skip components that have already been added to the volume
+                if (m_Target.Has(t))
+                    continue;
+                
                 // Prep the categories & types tree
-                AddNode(rootNode, path, t);
+                AddNode(rootNode, keyValuePair.Key, t);
             }
 
             // Recursively add all elements to the tree

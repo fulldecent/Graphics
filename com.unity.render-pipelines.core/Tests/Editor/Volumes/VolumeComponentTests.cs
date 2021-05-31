@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using UnityEditor.Rendering;
+using Type = System.Type;
 
 namespace UnityEngine.Rendering.Tests
 {
@@ -159,5 +160,23 @@ namespace UnityEngine.Rendering.Tests
         }
 
         #endregion
+
+        [Test]
+        public void TestVolumeComponentProvider()
+        {
+            Type[] types = new[]
+            {
+                typeof(VolumeComponentNoAdditionalAttributes),
+                typeof(VolumeComponentAllAdditionalAttributes),
+                typeof(VolumeComponentMixedAdditionalAttributes)
+            };
+
+            Type volumeComponentProvider = ReflectionUtils.FindTypeByName("UnityEditor.Rendering.VolumeComponentProvider");
+            var volumeComponents = volumeComponentProvider.InvokeStatic("FilterVolumeComponentTypes",
+                types, typeof(RenderPipeline)) as Dictionary<string, Type>;
+
+            Assert.True(volumeComponents != null, "Invalid dictionary");
+            Assert.True(volumeComponents.Count == 0);
+        }
     }
 }
