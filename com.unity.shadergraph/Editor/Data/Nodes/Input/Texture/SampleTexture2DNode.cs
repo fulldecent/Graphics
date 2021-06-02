@@ -82,11 +82,11 @@ namespace UnityEditor.ShaderGraph
         }
 
         [SerializeField]
-        private bool m_EnableGlobalMipBias = true;
-        internal bool enableGlobalMipBias
+        private bool m_DisableGlobalMipBias = false;
+        internal bool disableGlobalMipBias
         {
-            set { m_EnableGlobalMipBias = value; }
-            get { return m_EnableGlobalMipBias; }
+            set { m_DisableGlobalMipBias = value; }
+            get { return m_DisableGlobalMipBias; }
         }
 
         public sealed override void UpdateNodeAfterDeserialization()
@@ -121,7 +121,7 @@ namespace UnityEditor.ShaderGraph
             var id = GetSlotValue(TextureInputId, generationMode);
             var result = string.Format("$precision4 {0} = {1}({2}.tex, {3}.samplerstate, {2}.GetTransformedUV({4}));"
                 , GetVariableNameForSlot(OutputSlotRGBAId)
-                , m_EnableGlobalMipBias ? kDefaultSampleMacro : kSampleMacroNoBias
+                , m_DisableGlobalMipBias ? kSampleMacroNoBias : kDefaultSampleMacro
                 , id
                 , edgesSampler.Any() ? GetSlotValue(SamplerInput, generationMode) : id
                 , uvName);
