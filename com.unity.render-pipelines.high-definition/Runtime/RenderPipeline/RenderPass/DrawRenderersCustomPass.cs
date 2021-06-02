@@ -158,7 +158,7 @@ namespace UnityEngine.Rendering.HighDefinition
 
             PerObjectData renderConfig = ctx.hdCamera.frameSettings.IsEnabled(FrameSettingsField.Shadowmask) ? HDUtils.GetBakedLightingWithShadowMaskRenderConfig() : HDUtils.GetBakedLightingRenderConfig();
 
-            var result = new RendererUtils.RendererListDesc(shaderPasses, ctx.cullingResults, ctx.hdCamera.camera)
+            var result = new RendererListDesc(shaderPasses, ctx.cullingResults, ctx.hdCamera.camera)
             {
                 rendererConfiguration = renderConfig,
                 renderQueueRange = GetRenderQueueRange(renderQueueType),
@@ -170,8 +170,7 @@ namespace UnityEngine.Rendering.HighDefinition
                 layerMask = layerMask,
             };
 
-            var renderCtx = ctx.renderContext;
-            CoreUtils.DrawRendererList(ctx.renderContext, ctx.cmd, renderCtx.CreateRendererList(result));
+            CoreUtils.DrawRendererList(ctx.renderContext, ctx.cmd, RendererList.Create(result));
         }
 
         /// <summary>

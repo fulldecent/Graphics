@@ -1,6 +1,5 @@
 using System.Diagnostics;
 using UnityEngine.Rendering;
-using UnityEngine.Rendering.RendererUtils;
 
 namespace UnityEngine.Experimental.Rendering.RenderGraphModule
 {
