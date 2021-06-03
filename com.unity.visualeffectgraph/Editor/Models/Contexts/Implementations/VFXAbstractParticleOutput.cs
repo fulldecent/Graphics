@@ -605,7 +605,8 @@ namespace UnityEditor.VFX
                     vertsCount = 0;
                     break;
             }
-            return vertsCount != 0;
+            // TODO: @gabriel.delacruz - Temporarily disable per vertex optimization
+            return false; //vertsCount != 0;
         }
 
         protected override void GenerateErrors(VFXInvalidateErrorReporter manager)

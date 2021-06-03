@@ -1439,14 +1439,12 @@ namespace UnityEditor.VFX.UI
 
         void OnSave()
         {
-            m_ComponentBoard?.DeactivateBoundsRecordingIfNeeded(); //Avoids saving the graph with unnecessary bounds computations
-
             var graphToSave = new HashSet<VFXGraph>();
             GetGraphsRecursively(controller.graph, graphToSave);
+            m_ComponentBoard.DeactivateBoundsRecordingIfNeeded(); //Avoids saving the graph with unnecessary bounds computations
             foreach (var graph in graphToSave)
             {
-                if (EditorUtility.IsDirty(graph) || UnityEngine.Object.ReferenceEquals(graph, controller.graph))
-                    graph.GetResource().WriteAsset();
+                graph.GetResource().WriteAsset();
             }
         }
 
