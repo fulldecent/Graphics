@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 
 namespace UnityEngine.Rendering
 {
@@ -9,17 +10,19 @@ namespace UnityEngine.Rendering
     public sealed class SupportedOnAttribute : Attribute
     {
         /// <summary>
-        /// The pipeline types that define the support
+        /// The list of pipeline types that the target class supports
         /// </summary>
         public Type[] pipelineTypes { get; }
 
         /// <summary>
-        /// Creates a new <seealso cref="SupportedOn"/> instance.
+        /// Creates a new <seealso cref="SupportedOnAttribute"/> instance.
         /// </summary>
-        /// <param name="pipelineTypes">The list of pipeline types
-        /// create sub-menus.</param>
+        /// <param name="pipelineTypes">The list of pipeline types that the target class supports</param>
         public SupportedOnAttribute(params Type[] pipelineTypes)
         {
+            if (pipelineTypes == null)
+                throw new Exception($"Specify a list of supported pipeline");
+
             // Make sure that we only allow the class types that inherit from the render pipeline
             foreach (var t in pipelineTypes)
             {

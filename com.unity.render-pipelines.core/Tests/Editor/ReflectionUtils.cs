@@ -17,7 +17,6 @@ namespace UnityEngine.Rendering.Tests
         {
             var type = AppDomain.CurrentDomain
                 .GetAssemblies()
-                .Reverse()
                 .Select(assembly => assembly.GetType(name))
                 .FirstOrDefault(tt => tt != null);
 
