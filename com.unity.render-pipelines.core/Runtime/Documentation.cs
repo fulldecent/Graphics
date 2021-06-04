@@ -1,5 +1,7 @@
+using System;
 using System.Runtime.CompilerServices;
 using System.Diagnostics;
+using System.Linq;
 using UnityEngine;
 #if UNITY_EDITOR
 using UnityEditor.PackageManager;
@@ -78,5 +80,28 @@ namespace UnityEngine.Rendering
         //Temporary for now, there is several part of the Core documentation that are misplaced in HDRP documentation.
         //use this base url for them:
         internal const string baseURLHDRP = "https://docs.unity3d.com/Packages/com.unity.render-pipelines.high-definition@";
+    }
+
+    /// <summary>
+    /// Set of utils for documentation
+    /// </summary>
+    public static class DocumentationUtils
+    {
+        /// <summary>
+        /// Obtains the help url from an enum
+        /// </summary>
+        /// <typeparam name="TEnum">The enum with a <see cref="HelpURLAttribute"/></typeparam>
+        /// <param name="mask">The current value of the enum</param>
+        /// <returns>The full url</returns>
+        public static string GetHelpURL<TEnum>(TEnum mask)
+            where TEnum : struct, IConvertible
+        {
+            var helpURLAttribute = (HelpURLAttribute)mask
+                .GetType()
+                .GetCustomAttributes(typeof(HelpURLAttribute), false)
+                .FirstOrDefault();
+
+            return helpURLAttribute == null ? string.Empty : $"{helpURLAttribute.URL}#{mask}";
+        }
     }
 }
