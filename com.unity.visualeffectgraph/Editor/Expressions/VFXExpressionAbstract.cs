@@ -223,7 +223,6 @@ namespace UnityEditor.VFX
                 case VFXValueType.CameraBuffer:
                 case VFXValueType.Mesh:
                 case VFXValueType.SkinnedMeshRenderer:
-                case VFXValueType.Buffer:
                     return false;
             }
             return true;
@@ -315,7 +314,6 @@ namespace UnityEditor.VFX
             if (type == typeof(SkinnedMeshRenderer)) return VFXValueType.SkinnedMeshRenderer;
             if (type == typeof(List<Vector3>)) return VFXValueType.Spline;
             if (type == typeof(bool)) return VFXValueType.Boolean;
-            if (type == typeof(GraphicsBuffer)) return VFXValueType.Buffer;
             return VFXValueType.None;
         }
 

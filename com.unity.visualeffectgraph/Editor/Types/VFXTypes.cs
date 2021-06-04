@@ -7,6 +7,10 @@ using UnityEngine.VFX;
 
 namespace UnityEditor.VFX
 {
+    [AttributeUsage(AttributeTargets.Struct)]
+    class VFXTypeAttribute : Attribute
+    {}
+
     enum SpaceableType
     {
         None,

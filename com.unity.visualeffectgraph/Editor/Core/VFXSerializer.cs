@@ -503,11 +503,6 @@ namespace UnityEditor.VFX
                     return listObj;
                 }
             }
-            else if (type == typeof(GraphicsBuffer))
-            {
-                //We can't desarialize or allocate a default GraphicsBuffer
-                return null;
-            }
             else
             {
                 try

@@ -12,7 +12,6 @@ using UnityEngine.Rendering;
 
 using Object = UnityEngine.Object;
 using System.IO;
-using System.Collections.ObjectModel;
 
 namespace UnityEditor.VFX
 {
@@ -21,7 +20,6 @@ namespace UnityEditor.VFX
         public VFXExpressionMapper cpuMapper;
         public VFXExpressionMapper gpuMapper;
         public VFXUniformMapper uniformMapper;
-        public ReadOnlyDictionary<VFXExpression, Type> graphicsBufferUsage;
         public VFXMapping[] parameters;
         public int indexInShaderSource;
     }
@@ -146,8 +144,7 @@ namespace UnityEditor.VFX
                         case VFXValueType.Mesh: value = CreateObjectValueDesc<Mesh>(exp, i); break;
                         case VFXValueType.SkinnedMeshRenderer: value = CreateObjectValueDesc<SkinnedMeshRenderer>(exp, i); break;
                         case VFXValueType.Boolean: value = CreateValueDesc<bool>(exp, i); break;
-                        case VFXValueType.Buffer: value = CreateValueDesc<GraphicsBuffer>(exp, i); break;
-                        default: throw new InvalidOperationException("Invalid type : " + exp.valueType);
+                        default: throw new InvalidOperationException("Invalid type");
                     }
                     value.expressionIndex = (uint)i;
                     outValueDescs.Add(value);
@@ -778,7 +775,6 @@ namespace UnityEditor.VFX
                     var contextData = contextToCompiledData[context];
                     contextData.gpuMapper = gpuMapper;
                     contextData.uniformMapper = uniformMapper;
-                    contextData.graphicsBufferUsage = graph.GraphicsBufferTypeUsage;
                     contextToCompiledData[context] = contextData;
 
                     if (context.doesGenerateShader)
@@ -1270,7 +1266,6 @@ namespace UnityEditor.VFX
                         case VFXValueType.Mesh: SetObjectValueDesc<Mesh>(desc, exp); break;
                         case VFXValueType.SkinnedMeshRenderer: SetObjectValueDesc<SkinnedMeshRenderer>(desc, exp); break;
                         case VFXValueType.Boolean: SetValueDesc<bool>(desc, exp); break;
-                        case VFXValueType.Buffer: break; //The GraphicsBuffer type isn't serialized
                         default: throw new InvalidOperationException("Invalid type");
                     }
                 }
