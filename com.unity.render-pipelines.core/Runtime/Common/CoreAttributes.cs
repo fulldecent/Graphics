@@ -30,7 +30,7 @@ namespace UnityEngine.Rendering
                     throw new Exception(
                         $"You can only specify types that inherit from {typeof(RenderPipeline)}, please check {t}");
             }
-            
+
             this.pipelineTypes = pipelineTypes;
         }
     }

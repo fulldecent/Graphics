@@ -101,7 +101,7 @@ namespace UnityEditor.Rendering
                 tree.Add(new GroupElement(0, "No SRP in use"));
                 return;
             }
-            
+
             tree.Add(new GroupElement(0, "Volume Overrides"));
 
             var volumeComponentTypesFiltered = FilterVolumeComponentTypes(
@@ -117,7 +117,7 @@ namespace UnityEditor.Rendering
                 // Skip components that have already been added to the volume
                 if (m_Target.Has(t))
                     continue;
-                
+
                 // Prep the categories & types tree
                 AddNode(rootNode, keyValuePair.Key, t);
             }
