@@ -4,19 +4,20 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using UnityEditor.Rendering;
-using Type = System.Type;
 
 namespace UnityEngine.Rendering.Tests
 {
     public class VolumeComponentEditorTests
     {
         [HideInInspector]
+        [SupportedOn(typeof(RenderPipeline))]
         class VolumeComponentNoAdditionalAttributes : VolumeComponent
         {
             public MinFloatParameter parameter = new MinFloatParameter(0f, 0f);
         }
 
         [HideInInspector]
+        [SupportedOn(typeof(RenderPipeline))]
         class VolumeComponentAllAdditionalAttributes : VolumeComponent
         {
             [AdditionalProperty]
@@ -27,6 +28,7 @@ namespace UnityEngine.Rendering.Tests
         }
 
         [HideInInspector]
+        [SupportedOn(typeof(RenderPipeline))]
         class VolumeComponentMixedAdditionalAttributes : VolumeComponent
         {
             public MinFloatParameter parameter1 = new MinFloatParameter(0f, 0f);
@@ -162,7 +164,7 @@ namespace UnityEngine.Rendering.Tests
         #endregion
 
         [Test]
-        public void TestVolumeComponentProvider()
+        public void TestSupportedOnAvoidedIfHideInInspector()
         {
             Type[] types = new[]
             {
@@ -173,10 +175,10 @@ namespace UnityEngine.Rendering.Tests
 
             Type volumeComponentProvider = ReflectionUtils.FindTypeByName("UnityEditor.Rendering.VolumeComponentProvider");
             var volumeComponents = volumeComponentProvider.InvokeStatic("FilterVolumeComponentTypes",
-                types, typeof(RenderPipeline)) as Dictionary<string, Type>;
+                types, typeof(RenderPipeline)) as List<(string, Type)>;
 
-            Assert.True(volumeComponents != null, "Invalid dictionary");
-            Assert.True(volumeComponents.Count == 0);
+            Assert.NotNull(volumeComponents);
+            Assert.False(volumeComponents.Any());
         }
     }
 }

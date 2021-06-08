@@ -48,9 +48,24 @@ namespace UnityEditor.Rendering
             m_TargetEditor = targetEditor;
         }
 
-        private static Dictionary<string, Type> FilterVolumeComponentTypes(Type[] types, Type currentPipelineType)
+        static readonly Dictionary<Type, List<(string, Type)>> s_SupportedVolumeComponentsForRenderPipeline = new();
+
+        static List<(string, Type)> GetSupportedVolumeComponents(Type currentPipelineType)
         {
-            var volumes = new Dictionary<string, Type>();
+            if (s_SupportedVolumeComponentsForRenderPipeline.TryGetValue(currentPipelineType,
+                out var supportedVolumeComponents))
+                return supportedVolumeComponents;
+
+            supportedVolumeComponents = FilterVolumeComponentTypes(
+                VolumeManager.instance.baseComponentTypeArray, currentPipelineType);
+            s_SupportedVolumeComponentsForRenderPipeline[currentPipelineType]= supportedVolumeComponents;
+
+            return supportedVolumeComponents;
+        }
+
+        static List<(string, Type)> FilterVolumeComponentTypes(Type[] types, Type currentPipelineType)
+        {
+            var volumes = new List<(string, Type)>();
             foreach (var t in types)
             {
                 string path = string.Empty;
@@ -74,7 +89,7 @@ namespace UnityEditor.Rendering
                             skipComponent = true;
                             break;
                         case SupportedOnAttribute supportedOn:
-                            skipComponent = !supportedOn.pipelineTypes.Contains(currentPipelineType);
+                            skipComponent |= !supportedOn.pipelineTypes.Contains(currentPipelineType);
                             break;
                     }
                 }
@@ -87,7 +102,7 @@ namespace UnityEditor.Rendering
                 if (string.IsNullOrEmpty(path))
                     path = ObjectNames.NicifyVariableName(t.Name);
 
-                volumes[path] = t;
+                volumes.Add((path,t));
             }
 
             return volumes;
@@ -104,34 +119,33 @@ namespace UnityEditor.Rendering
 
             tree.Add(new GroupElement(0, "Volume Overrides"));
 
-            var volumeComponentTypesFiltered = FilterVolumeComponentTypes(
-                VolumeManager.instance.baseComponentTypeArray,
-                currentPipeline.GetType());
+            var volumeComponentTypesFiltered =
+                GetSupportedVolumeComponents(currentPipeline.GetType());
 
-            var rootNode = new PathNode();
-
-            foreach (var keyValuePair in volumeComponentTypesFiltered)
+            if (volumeComponentTypesFiltered.Any())
             {
-                var t = keyValuePair.Value;
+                var rootNode = new PathNode();
 
-                // Skip components that have already been added to the volume
-                if (m_Target.Has(t))
-                    continue;
+                foreach (var (path, t) in volumeComponentTypesFiltered)
+                {
+                    // Skip components that have already been added to the volume
+                    if (m_Target.Has(t))
+                        continue;
 
-                // Prep the categories & types tree
-                AddNode(rootNode, keyValuePair.Key, t);
+                    // Prep the categories & types tree
+                    AddNode(rootNode, path, t);
+                }
+
+                // Recursively add all elements to the tree
+                Traverse(rootNode, 1, tree);
             }
-
-            // Recursively add all elements to the tree
-            Traverse(rootNode, 1, tree);
         }
 
         public bool GoToChild(Element element, bool addIfComponent)
         {
-            if (element is VolumeComponentElement)
+            if (element is VolumeComponentElement volumeComponentElement)
             {
-                var e = (VolumeComponentElement)element;
-                m_TargetEditor.AddComponent(e.type);
+                m_TargetEditor.AddComponent(volumeComponentElement.type);
                 return true;
             }
 
