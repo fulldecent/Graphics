@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 2158.0293, g: 2261.7441, b: 3299.5078, a: 1}
+  m_IndirectSpecularColor: {r: 2159.8809, g: 2263.3887, b: 3300.4102, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -1897,10 +1897,10 @@ MonoBehaviour:
   ImageComparisonSettings:
     TargetWidth: 1920
     TargetHeight: 1080
-    PerPixelCorrectnessThreshold: 0
+    PerPixelCorrectnessThreshold: 0.001
     PerPixelGammaThreshold: 0.003921569
     PerPixelAlphaThreshold: 0.003921569
-    AverageCorrectnessThreshold: 0
+    AverageCorrectnessThreshold: 0.001
     IncorrectPixelsThreshold: 0.0000038146973
     UseHDR: 0
     UseBackBuffer: 0
@@ -1914,7 +1914,7 @@ MonoBehaviour:
   waitFrames: 300
   xrCompatible: 1
   xrThresholdMultiplier: 1
-  checkMemoryAllocation: 1
+  checkMemoryAllocation: 0
   renderPipelineAsset: {fileID: 11400000, guid: 6bd5fa45cda106547a3123d7cb302682,
     type: 2}
 --- !u!1 &1988140875
